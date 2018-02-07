@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 public class OperatorsLevel implements EmployeesLevel {
 
-    private EmployeesLevel nextHierarchyLevel;
+    private Optional<EmployeesLevel> nextHierarchyLevel;
     private BlockingQueue<Operator> operators;
 
     private OperatorsLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableEmployees) {
@@ -22,10 +22,10 @@ public class OperatorsLevel implements EmployeesLevel {
         return new OperatorsLevel(nextHierarchyLevel, numOfAvailableEmployees);
     }
 
-    private EmployeesLevel checkNextHierarchyLevel(EmployeesLevel nextHierarchyLevel) {
+    private Optional<EmployeesLevel> checkNextHierarchyLevel(EmployeesLevel nextHierarchyLevel) {
         Optional.of(nextHierarchyLevel instanceof OperatorsLevel)
                 .orElseThrow(() -> new RuntimeException("Next hierarchy level cannot be the same as current hierachy level."));
-        return nextHierarchyLevel;
+        return Optional.ofNullable(nextHierarchyLevel);
     }
 
     private BlockingQueue<Operator> initializeHierarchyLevel(int numOfAvailableEmployees) {
