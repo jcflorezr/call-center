@@ -1,21 +1,20 @@
-package net.learningpath.callcenter.dto.employee;
+package net.learningpath.callcenter.employee;
 
 import java.util.Optional;
 
 public class Supervisor implements Employee {
 
     private Optional<Employee> boss;
+    private String greeting;
 
     public Supervisor(Employee boss) {
-        if (boss instanceof Director) {
-            throw new RuntimeException("Employee cannot have a boss of same level");
-        }
         this.boss = (boss == null) ? Optional.empty() : Optional.of(boss);
+        this.greeting = "Hi, is not there any operator available???";
     }
 
     @Override
     public String answerCall() {
-        return "Hi, supervisor speaking...";
+        return greeting;
     }
 
     @Override

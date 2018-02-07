@@ -1,4 +1,4 @@
-package net.learningpath.callcenter.dto.employee;
+package net.learningpath.callcenter.employee;
 
 import java.util.Optional;
 
