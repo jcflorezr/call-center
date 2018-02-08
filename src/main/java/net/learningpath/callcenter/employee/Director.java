@@ -1,18 +1,9 @@
 package net.learningpath.callcenter.employee;
 
-import java.util.Optional;
-
-public class Director implements Employee {
-
-    private String greeting;
+public class Director extends Employee {
 
     public Director() {
-        this.greeting = "Hi, director speaking...";
-    }
-
-    @Override
-    public String answerCall() {
-        return greeting;
+        super.greeting = "Hi, director speaking... :/";
     }
 
 }

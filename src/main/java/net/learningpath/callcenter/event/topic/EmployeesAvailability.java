@@ -1,16 +1,18 @@
 package net.learningpath.callcenter.event.topic;
 
+import net.learningpath.callcenter.dto.Call;
 import net.learningpath.callcenter.event.listener.Listener;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class EmployeesAvailable implements Topic {
+public class EmployeesAvailability implements EmployeesAvailabilityTopic {
 
     private List<Listener> listeners;
+    private boolean availability;
 
-    public EmployeesAvailable() {
-        listeners = new ArrayList<>();
+    public EmployeesAvailability() {
+        listeners = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -28,4 +30,18 @@ public class EmployeesAvailable implements Topic {
         listeners.forEach(listener -> listener.update());
     }
 
+    @Override
+    public void notifyAvailability() {
+
+    }
+
+    @Override
+    public void notifyUnavailability(Call call) {
+
+    }
+
+    @Override
+    public Call getUnansweredCall() {
+        return null;
+    }
 }
