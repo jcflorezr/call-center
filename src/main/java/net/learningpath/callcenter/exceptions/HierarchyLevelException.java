@@ -23,4 +23,8 @@ public class HierarchyLevelException extends RuntimeException {
                 "to the availability queue. Reason: " + e);
     }
 
+    public static void failedWhileAttendingCall(Throwable e) {
+        throw new RuntimeException("Call was lost during the process: " + e);
+    }
+
 }
