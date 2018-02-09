@@ -8,19 +8,11 @@ public abstract class Employee {
 
     protected String greeting;
 
-    public boolean receiveCall(Call call) {
+    public boolean receiveCall(Call call) throws InterruptedException {
         System.out.println(greeting);
-        return processCall();
-    }
-
-    private boolean processCall() {
         long callDuration = ThreadLocalRandom.current().nextInt(5, 11) * 1000;
-        try {
-            Thread.sleep(callDuration);
-            return true;
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Call was lost while process: " + e);
-        }
+        Thread.sleep(callDuration);
+        return true;
     }
 
 }

@@ -8,6 +8,4 @@ public interface EmployeesAvailabilityTopic extends Topic {
 
     void notifyUnavailability(Call call);
 
-    Call getUnansweredCall();
-
 }

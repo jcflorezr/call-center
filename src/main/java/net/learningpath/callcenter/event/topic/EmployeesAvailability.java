@@ -1,18 +1,33 @@
 package net.learningpath.callcenter.event.topic;
 
+import io.vavr.control.Option;
 import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.event.listener.AvailabilityListener;
 import net.learningpath.callcenter.event.listener.Listener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EmployeesAvailability implements EmployeesAvailabilityTopic {
 
+    private final Object lock;
     private List<Listener> listeners;
-    private boolean availability;
+    private AtomicBoolean employeesAvailable;
 
-    public EmployeesAvailability() {
+    private EmployeesAvailability() {
+        lock = new Object();
         listeners = new CopyOnWriteArrayList<>();
+        employeesAvailable = new AtomicBoolean(true);
+    }
+
+    private static class EmployeesAvailabilityHolder {
+        private static final EmployeesAvailability INSTANCE = new EmployeesAvailability();
+
+    }
+
+    public static EmployeesAvailability getInstance() {
+        return EmployeesAvailabilityHolder.INSTANCE;
     }
 
     @Override
@@ -27,21 +42,26 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
 
     @Override
     public void notifyListeners() {
-        listeners.forEach(listener -> listener.update());
+        listeners.forEach(Listener::update);
     }
 
     @Override
     public void notifyAvailability() {
-
+        synchronized (lock) {
+            Option.of(employeesAvailable.getAndSet(true))
+                    .filter(Boolean::booleanValue)
+                    .peek(wasUnavailable -> notifyListeners());
+        }
     }
 
     @Override
     public void notifyUnavailability(Call call) {
-
+        synchronized (lock) {
+            Option.of(employeesAvailable.getAndSet(false))
+                    .filter(Boolean::booleanValue)
+                    .peek(wasAvailable -> listeners
+                            .forEach(listener -> ((AvailabilityListener) listener).update(call)));
+        }
     }
 
-    @Override
-    public Call getUnansweredCall() {
-        return null;
-    }
 }
