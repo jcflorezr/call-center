@@ -14,7 +14,7 @@ public class HierarchyLevelException extends InternalServerException {
         throw new HierarchyLevelException("Next hierarchy level cannot be the same as current hierachy level.");
     }
 
-    public static HierarchyLevelException levelNotInitialized (Throwable cause) {
+    public static HierarchyLevelException levelCouldNotBeInitialized(Throwable cause) {
         return new HierarchyLevelException("Could not initialize the new employee for hierarchy level.", cause);
     }
 

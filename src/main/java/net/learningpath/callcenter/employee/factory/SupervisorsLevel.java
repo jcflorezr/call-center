@@ -4,12 +4,12 @@ import net.learningpath.callcenter.employee.Supervisor;
 
 public class SupervisorsLevel extends EmployeesLevel {
 
-    private SupervisorsLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableEmployees) {
-        super(nextHierarchyLevel, numOfAvailableEmployees, SupervisorsLevel.class, Supervisor.class);
+    private SupervisorsLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableSupervisors) {
+        super(nextHierarchyLevel, numOfAvailableSupervisors, SupervisorsLevel.class, Supervisor.class);
     }
 
-    public static SupervisorsLevel newHierarchyLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableEmployees) {
-        return new SupervisorsLevel(nextHierarchyLevel, numOfAvailableEmployees);
+    public static SupervisorsLevel newHierarchyLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableSupervisors) {
+        return new SupervisorsLevel(nextHierarchyLevel, numOfAvailableSupervisors);
     }
 
 }

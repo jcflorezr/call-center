@@ -1,6 +1,7 @@
 package net.learningpath.callcenter;
 
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,26 +15,19 @@ public class ControllerTest {
     @Test
     public void getRequest() {
 
-        List<Integer> l = new ArrayList<>();
-        l.add(10);
-        Option<Integer> map = Option.of(l)
-                .filter(List::isEmpty)
-                .onEmpty(this::runOnNonEmpty)
-                .peek(l1 -> l1.add(12))
-                .map(l1 -> l1.get(0));
+
+        String success = Try.run(() -> runOnNonEmpty())
+                .failed()
+                .map(t -> "FAILURE")
+                .getOrElse("SUCCESS");
 
         System.out.println();
-        //Controller controller = new Controller();
-
-
-
-
 
 
     }
 
-    private void runOnEmpty() {
-        System.out.println("runOnEmpty");
+    private void throwException() throws Exception {
+        throw new Exception("EXCEPTION...");
     }
 
     private void runOnNonEmpty() {

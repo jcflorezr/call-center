@@ -17,24 +17,25 @@ public abstract class EmployeesLevel <EMPLOYEE extends Employee, LEVEL extends E
 
     private Option<EmployeesLevel> nextHierarchyLevel;
     private BlockingQueue<EMPLOYEE> employees;
-    private BiPredicate<EmployeesLevel, Class<LEVEL>> levelsAreSame =
-            (nextLevel, currentLevelType) -> nextLevel != null && nextLevel.getClass().isInstance(currentLevelType);
+    private BiPredicate<EmployeesLevel, Class<LEVEL>> levelsAreNotSame =
+            (nextLevel, currentLevelType) -> nextLevel == null || !currentLevelType.isAssignableFrom(nextLevel.getClass());
 
     protected EmployeesLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableEmployees,
                              Class<LEVEL> currentHierarchyLevelType, Class<EMPLOYEE> employeesType) {
-        this.nextHierarchyLevel = checkNextHierarchyLevel(nextHierarchyLevel, currentHierarchyLevelType);
+        this.nextHierarchyLevel = nextHierarchyLevel == null ? Option.none()
+                                                             : checkNextHierarchyLevel(nextHierarchyLevel, currentHierarchyLevelType);
         this.employees = initializeHierarchyLevel(numOfAvailableEmployees, employeesType);
     }
 
     private Option<EmployeesLevel> checkNextHierarchyLevel(EmployeesLevel nextHierarchyLevel, Class<LEVEL> levelClassType) {
         return Option.of(nextHierarchyLevel)
-                .filter(nextLevel -> levelsAreSame.test(nextLevel, levelClassType))
+                .filter(nextLevel -> levelsAreNotSame.test(nextLevel, levelClassType))
                 .onEmpty(HierarchyLevelException::currentLevelSameAsNext);
     }
 
     private BlockingQueue<EMPLOYEE> initializeHierarchyLevel(int numOfAvailableEmployees, Class<EMPLOYEE> employee) {
         return IntStream.range(0, numOfAvailableEmployees)
-                .mapToObj(i -> Try.of(employee::newInstance).getOrElseThrow(HierarchyLevelException::levelNotInitialized))
+                .mapToObj(i -> Try.of(employee::newInstance).getOrElseThrow(HierarchyLevelException::levelCouldNotBeInitialized))
                 .collect(Collectors.toCollection(() -> new ArrayBlockingQueue<>(numOfAvailableEmployees)));
     }
 
