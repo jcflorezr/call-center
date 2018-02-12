@@ -1,7 +1,7 @@
 package net.learningpath.callcenter.service;
 
 import io.vavr.control.Try;
-import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.dto.request.Call;
 import net.learningpath.callcenter.employee.factory.DirectorsLevel;
 import net.learningpath.callcenter.employee.factory.EmployeesLevel;
 import net.learningpath.callcenter.employee.factory.OperatorsLevel;
@@ -19,18 +19,18 @@ public class DispatcherImpl implements Dispatcher, AvailabilityListener {
     private final EmployeesLevel directorsLevel;
     private final EmployeesLevel supervisorsLevel;
     private final EmployeesLevel operatorsLevel;
-    private final int numOfDirectors = 1;
-    private final int numOfSupervisors = 5;
-    private final int numOfOperators = 10;
+    private static final int NUM_OF_DIRECTORS = 1;
+    private static final int NUM_OF_SUPERVISORS = 5;
+    private static final int NUM_OF_OPERATORS = 10;
     private final EmployeesAvailabilityTopic employeesAvailability;
     private final BlockingQueue<Call> calls;
 
     private DispatcherImpl() {
         calls = new LinkedBlockingQueue<>();
         // Chain of Responsibility
-        directorsLevel = DirectorsLevel.newHierarchyLevel(null, numOfDirectors);
-        supervisorsLevel = SupervisorsLevel.newHierarchyLevel(directorsLevel, numOfSupervisors);
-        operatorsLevel = OperatorsLevel.newHierarchyLevel(supervisorsLevel, numOfOperators);
+        directorsLevel = DirectorsLevel.newHierarchyLevel(null, NUM_OF_DIRECTORS);
+        supervisorsLevel = SupervisorsLevel.newHierarchyLevel(directorsLevel, NUM_OF_SUPERVISORS);
+        operatorsLevel = OperatorsLevel.newHierarchyLevel(supervisorsLevel, NUM_OF_OPERATORS);
         // Observer
         employeesAvailability = EmployeesAvailability.getInstance();
         employeesAvailability.register(this);
@@ -41,6 +41,7 @@ public class DispatcherImpl implements Dispatcher, AvailabilityListener {
     }
 
     private static class DispatcherHandler {
+        private DispatcherHandler() {}
         private static final DispatcherImpl INSTANCE = new DispatcherImpl();
     }
 
@@ -51,13 +52,15 @@ public class DispatcherImpl implements Dispatcher, AvailabilityListener {
 
     @Override
     public void update() {
-        Call enqueuedCall = Try.of(calls::take).onFailure(DispatcherException::failedWhenDequeuingCall).get();
-        dispatchCall(enqueuedCall);
+        Try.of(calls::take)
+            .onSuccess(this::dispatchCall)
+            .onFailure(DispatcherException::failedWhenDequeuingCall);
     }
 
     @Override
     public void update(Call unansweredCall) {
-        Try.run(() -> calls.put(unansweredCall)).onFailure(DispatcherException::failedWhenEnqueuingCall);
+        Try.run(() -> calls.put(unansweredCall))
+                .onFailure(DispatcherException::failedWhenEnqueuingCall);
     }
 
 }

@@ -1,7 +1,7 @@
 package net.learningpath.callcenter.event.topic;
 
 import io.vavr.control.Option;
-import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.dto.request.Call;
 import net.learningpath.callcenter.event.listener.AvailabilityListener;
 import net.learningpath.callcenter.event.listener.Listener;
 
@@ -22,8 +22,8 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
     }
 
     private static class EmployeesAvailabilityHolder {
+        private EmployeesAvailabilityHolder() {}
         private static final EmployeesAvailability INSTANCE = new EmployeesAvailability();
-
     }
 
     public static EmployeesAvailability getInstance() {
@@ -50,7 +50,7 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
         synchronized (lock) {
             Option.of(employeesAvailable.getAndSet(true))
                     .filter(Boolean::booleanValue)
-                    .peek(wasUnavailable -> notifyListeners());
+                    .onEmpty(this::notifyListeners);
         }
     }
 

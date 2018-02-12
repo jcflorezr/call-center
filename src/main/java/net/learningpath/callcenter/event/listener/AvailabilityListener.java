@@ -1,6 +1,6 @@
 package net.learningpath.callcenter.event.listener;
 
-import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.dto.request.Call;
 
 public interface AvailabilityListener extends Listener {
 

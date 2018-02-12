@@ -1,6 +1,6 @@
 package net.learningpath.callcenter.event.topic;
 
-import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.dto.request.Call;
 
 public interface EmployeesAvailabilityTopic extends Topic {
 

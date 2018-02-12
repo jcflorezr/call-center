@@ -1,11 +1,16 @@
 package net.learningpath.callcenter;
 
-import net.learningpath.callcenter.dto.Call;
+import io.vavr.control.Try;
+import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.Error;
+import net.learningpath.callcenter.dto.response.Response;
+import net.learningpath.callcenter.dto.response.Success;
 import net.learningpath.callcenter.service.DispatcherImpl;
 
 public class Controller {
 
     private static class ControllerHolder {
+        private ControllerHolder() {}
         private static final Controller INSTANCE = new Controller();
     }
 
@@ -16,8 +21,11 @@ public class Controller {
     private Controller() {
     }
 
-    public void getRequest(Call call) {
-        DispatcherImpl.getInstance().dispatchCall(call);
+    public Response getRequest(Call call) {
+        return Try.run(() -> DispatcherImpl.getInstance().dispatchCall(call))
+                .failed()
+                .map(Error::getInstance)
+                .getOrElse(Success::getInstance);
     }
 
 }

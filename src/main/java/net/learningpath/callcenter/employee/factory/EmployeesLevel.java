@@ -2,7 +2,7 @@ package net.learningpath.callcenter.employee.factory;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import net.learningpath.callcenter.dto.Call;
+import net.learningpath.callcenter.dto.request.Call;
 import net.learningpath.callcenter.employee.Employee;
 import net.learningpath.callcenter.event.topic.EmployeesAvailabilityTopic;
 import net.learningpath.callcenter.exceptions.HierarchyLevelException;
@@ -34,7 +34,7 @@ public abstract class EmployeesLevel <EMPLOYEE extends Employee, LEVEL extends E
 
     private BlockingQueue<EMPLOYEE> initializeHierarchyLevel(int numOfAvailableEmployees, Class<EMPLOYEE> employee) {
         return IntStream.range(0, numOfAvailableEmployees)
-                .mapToObj(i -> Try.of(() -> employee.newInstance()).getOrElseThrow(HierarchyLevelException::levelNotInitialized))
+                .mapToObj(i -> Try.of(employee::newInstance).getOrElseThrow(HierarchyLevelException::levelNotInitialized))
                 .collect(Collectors.toCollection(() -> new ArrayBlockingQueue<>(numOfAvailableEmployees)));
     }
 
