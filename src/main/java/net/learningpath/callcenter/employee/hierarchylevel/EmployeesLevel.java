@@ -1,4 +1,4 @@
-package net.learningpath.callcenter.employee.factory;
+package net.learningpath.callcenter.employee.hierarchylevel;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;

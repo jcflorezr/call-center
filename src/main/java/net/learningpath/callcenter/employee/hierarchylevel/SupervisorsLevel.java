@@ -1,4 +1,4 @@
-package net.learningpath.callcenter.employee.factory;
+package net.learningpath.callcenter.employee.hierarchylevel;
 
 import net.learningpath.callcenter.employee.Supervisor;
 

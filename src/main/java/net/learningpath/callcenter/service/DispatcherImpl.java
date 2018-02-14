@@ -2,10 +2,10 @@ package net.learningpath.callcenter.service;
 
 import io.vavr.control.Try;
 import net.learningpath.callcenter.dto.request.Call;
-import net.learningpath.callcenter.employee.factory.DirectorsLevel;
-import net.learningpath.callcenter.employee.factory.EmployeesLevel;
-import net.learningpath.callcenter.employee.factory.OperatorsLevel;
-import net.learningpath.callcenter.employee.factory.SupervisorsLevel;
+import net.learningpath.callcenter.employee.hierarchylevel.DirectorsLevel;
+import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;
+import net.learningpath.callcenter.employee.hierarchylevel.OperatorsLevel;
+import net.learningpath.callcenter.employee.hierarchylevel.SupervisorsLevel;
 import net.learningpath.callcenter.event.listener.AvailabilityListener;
 import net.learningpath.callcenter.event.topic.EmployeesAvailability;
 import net.learningpath.callcenter.event.topic.EmployeesAvailabilityTopic;
