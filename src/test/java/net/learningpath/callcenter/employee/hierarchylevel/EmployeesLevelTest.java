@@ -24,7 +24,7 @@ public class EmployeesLevelTest {
     private static final String EMPLOYEES_QUEUE_FIELD_NAME = "employees";
 
     @Test
-    public void operatorShouldAttendCall() throws NoSuchFieldException, IllegalAccessException, InterruptedException {
+    public void operatorShouldAttendCall() throws InterruptedException {
         EmployeesLevel employeesLevelMock = mock(EmployeesLevel.class);
         Operator operator = mock(Operator.class);
         BlockingQueue<Operator> operatorsQueueMock = new ArrayBlockingQueue<>(1);
