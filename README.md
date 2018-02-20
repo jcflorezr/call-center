@@ -12,13 +12,13 @@ enqueued call.
 In this release the project is implemented with the Java SE platform only. 
 #### The inversion of control is implemented through:
 * The strategy pattern provided by the family of classes created implementing the Abstract Factory pattern inside the 
-[net.learningpath.callcenter.employee](https://github.com/jcflorezr/call-center/tree/feature/v1-call-center-module/src/main/java/net/learningpath/callcenter/employee)
+[net.learningpath.callcenter.employee](https://github.com/jcflorezr/call-center/tree/release-0.1/src/main/java/net/learningpath/callcenter/employee)
 module.
-* The freedom of choice how the chain of responsibility will be composed from the client side (look the [DispatcherImpl](https://github.com/jcflorezr/call-center/blob/feature/v1-call-center-module/src/main/java/net/learningpath/callcenter/service/DispatcherImpl.java)
+* The freedom of choice how the chain of responsibility will be composed from the client side (look the [DispatcherImpl](https://github.com/jcflorezr/call-center/blob/release-0.1/src/main/java/net/learningpath/callcenter/service/DispatcherImpl.java)
 class constructor).
 #### In order to make a concurrent call center module capable of attending multiple calls in parallel:
-* It was created a topic ([EmployeesAvailability](https://github.com/jcflorezr/call-center/blob/feature/v1-call-center-module/src/main/java/net/learningpath/callcenter/event/topic/EmployeesAvailability.java))
-which is in charge to notify the suscribers ([DispatcherImpl](https://github.com/jcflorezr/call-center/blob/feature/v1-call-center-module/src/main/java/net/learningpath/callcenter/service/DispatcherImpl.java))
+* It was created a topic ([EmployeesAvailability](https://github.com/jcflorezr/call-center/blob/release-0.1/src/main/java/net/learningpath/callcenter/event/topic/EmployeesAvailability.java))
+which is in charge to notify the suscribers ([DispatcherImpl](https://github.com/jcflorezr/call-center/blob/release-0.1/src/main/java/net/learningpath/callcenter/service/DispatcherImpl.java))
 for both availability and unavailability of employees to attend the calls.
 
 ### Built with
