@@ -1,24 +1,40 @@
 package net.learningpath.callcenter.dto.response;
 
-public class Error implements Response {
+import net.learningpath.callcenter.dto.request.Call;
 
+public class ErrorResponse implements Response {
+
+    private Call call;
     private boolean success;
+    private String errorType;
     private String message;
     private DetailedError details;
 
-    public static Response getInstance(Throwable cause) {
-        return new Error(cause);
+    public static Response newResponse(Call call, Throwable cause) {
+        return new ErrorResponse(call, cause);
     }
 
-    private Error(Throwable cause) {
+    private ErrorResponse(Call call, Throwable cause) {
+        this.call = call;
         this.success = false;
+        this.errorType = cause.getClass().getName();
         this.message = cause.getMessage();
         this.details = new DetailedError(cause);
     }
 
     @Override
+    public Call getCall() {
+        return call;
+    }
+
+    @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public String getErrorType() {
+        return errorType;
     }
 
     @Override
@@ -29,6 +45,17 @@ public class Error implements Response {
     @Override
     public DetailedError getDetails() {
         return details;
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "call=" + call +
+                ", success=" + success +
+                ", errorType='" + errorType + '\'' +
+                ", message='" + message + '\'' +
+                ", details=" + details +
+                '}';
     }
 
 }

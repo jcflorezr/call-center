@@ -1,17 +1,26 @@
 package net.learningpath.callcenter.dto.response;
 
-public class Success implements Response {
+import net.learningpath.callcenter.dto.request.Call;
 
+public class SuccessResponse implements Response {
+
+    private Call call;
     private boolean success;
     private String message;
 
-    public static Response getInstance() {
-        return new Success();
+    public static Response newResponse(Call call) {
+        return new SuccessResponse(call);
     }
 
-    private Success() {
+    private SuccessResponse(Call call) {
+        this.call = call;
         this.success = true;
         this.message = "Call was attended successfully !!!";
+    }
+
+    @Override
+    public Call getCall() {
+        return call;
     }
 
     @Override
@@ -22,5 +31,14 @@ public class Success implements Response {
     @Override
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public String toString() {
+        return "SuccessResponse{" +
+                "call=" + call +
+                ", success=" + success +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

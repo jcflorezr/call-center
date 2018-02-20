@@ -1,37 +1,43 @@
 package net.learningpath.callcenter;
 
-import io.vavr.control.Option;
 import io.vavr.control.Try;
+import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.Response;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ControllerTest {
 
     @Test
-    public void getRequest() {
+    public void getRequest() throws InterruptedException {
 
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        BiFunction<Call, Controller, Response> makeCall =
+                (call, controller) -> controller.getRequest(call);
+        List<Callable<Response>> callables = IntStream.range(1, 101)
+                .mapToObj(i -> Executors.privilegedCallable(() -> makeCall.apply(new Call("Client" + i), Controller.getInstance())))
+                .collect(Collectors.toList());
 
-        String success = Try.run(() -> runOnNonEmpty())
-                .failed()
-                .map(t -> "FAILURE")
-                .getOrElse("SUCCESS");
+        List<Response> responses =
+                executorService.invokeAll(callables).stream()
+                .map(future -> Try.of(future::get).getOrElseThrow(() -> new RuntimeException("se daño esta vaina al invocar los callables")))
+                .collect(Collectors.toList());
 
         System.out.println();
+        System.out.println();
+        System.out.println("==============================================================");
 
 
-    }
+        responses.forEach(System.out::println);
 
-    private void throwException() throws Exception {
-        throw new Exception("EXCEPTION...");
-    }
-
-    private void runOnNonEmpty() {
-        System.out.println("runOnNonEmpty");
+        Thread.sleep(50000L);
     }
 
 }

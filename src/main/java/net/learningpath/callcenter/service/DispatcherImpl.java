@@ -1,7 +1,10 @@
 package net.learningpath.callcenter.service;
 
-import io.vavr.control.Try;
+import io.vavr.control.Option;
 import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.ErrorResponse;
+import net.learningpath.callcenter.dto.response.Response;
+import net.learningpath.callcenter.dto.response.SuccessResponse;
 import net.learningpath.callcenter.employee.hierarchylevel.DirectorsLevel;
 import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;
 import net.learningpath.callcenter.employee.hierarchylevel.OperatorsLevel;
@@ -10,12 +13,16 @@ import net.learningpath.callcenter.event.listener.AvailabilityListener;
 import net.learningpath.callcenter.event.topic.EmployeesAvailability;
 import net.learningpath.callcenter.event.topic.EmployeesAvailabilityTopic;
 import net.learningpath.callcenter.exceptions.DispatcherException;
+import net.learningpath.callcenter.exceptions.InternalServerException;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DispatcherImpl implements Dispatcher, AvailabilityListener {
 
+    private final ExecutorService executorService;
     private final EmployeesLevel directorsLevel;
     private final EmployeesLevel supervisorsLevel;
     private final EmployeesLevel operatorsLevel;
@@ -26,6 +33,7 @@ public class DispatcherImpl implements Dispatcher, AvailabilityListener {
     private final BlockingQueue<Call> calls;
 
     private DispatcherImpl() {
+        executorService = Executors.newFixedThreadPool(100);
         calls = new LinkedBlockingQueue<>();
         // Chain of Responsibility
         directorsLevel = DirectorsLevel.newHierarchyLevel(null, NUM_OF_DIRECTORS);
@@ -46,20 +54,29 @@ public class DispatcherImpl implements Dispatcher, AvailabilityListener {
     }
 
     @Override
-    public void dispatchCall(Call call) {
-        operatorsLevel.answerCall(call, employeesAvailability);
+    public Response dispatchCall(Call call) {
+        try {
+            operatorsLevel.answerCall(call, employeesAvailability);
+            return SuccessResponse.newResponse(call);
+        } catch (InternalServerException e) {
+            return ErrorResponse.newResponse(call, e);
+        }
     }
 
     @Override
     public void update() {
-        Try.of(calls::take)
-            .onSuccess(this::dispatchCall)
-            .onFailure(DispatcherException::failedWhenDequeuingCall);
+        System.out.println("Availability is back!!!! Dispatching enqueued calls again...");
+        Option.of(calls.poll())
+                .peek(enqueuedCall -> executorService.execute(() -> dispatchCall(enqueuedCall)))
+                .onEmpty(() -> System.out.println("There are no more enqueued calls!!!"));
     }
 
     @Override
     public void update(Call unansweredCall) {
-        Try.run(() -> calls.put(unansweredCall))
+        System.out.println("There is no availability... Enqueuing call of client: " + unansweredCall.getClientName());
+        Option.of(unansweredCall)
+                .toTry()
+                .andThenTry(calls::put)
                 .onFailure(DispatcherException::failedWhenEnqueuingCall);
     }
 

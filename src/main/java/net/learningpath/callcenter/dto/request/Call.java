@@ -12,4 +12,10 @@ public class Call {
         return clientName;
     }
 
+    @Override
+    public String toString() {
+        return "Call{" +
+                "clientName='" + clientName + '\'' +
+                '}';
+    }
 }

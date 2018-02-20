@@ -6,11 +6,13 @@ import java.util.stream.Stream;
 
 public class DetailedError {
 
+    private String errorCauseType;
     private String errorCauseMessage;
     private List<TraceElement> stackTrace;
 
     public DetailedError(Throwable cause) {
         Throwable realCause = cause.getCause();
+        this.errorCauseType = realCause.getClass().getName();
         this.errorCauseMessage = realCause.getLocalizedMessage();
         this.stackTrace = getTrace(realCause);
     }
@@ -25,12 +27,25 @@ public class DetailedError {
                 .collect(Collectors.toList());
     }
 
+    public String getErrorCauseType() {
+        return errorCauseType;
+    }
+
     public String getErrorCauseMessage() {
         return errorCauseMessage;
     }
 
     public List<TraceElement> getStackTrace() {
         return stackTrace;
+    }
+
+    @Override
+    public String toString() {
+        return "DetailedError{" +
+                "errorCauseType='" + errorCauseType + '\'' +
+                ", errorCauseMessage='" + errorCauseMessage + '\'' +
+                ", stackTrace=" + stackTrace +
+                '}';
     }
 
     private class TraceElement {
@@ -61,6 +76,16 @@ public class DetailedError {
 
         public boolean isMethodIsNative() {
             return methodIsNative;
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "className='" + className + '\'' +
+                    ", methodName='" + methodName + '\'' +
+                    ", lineNumber=" + lineNumber +
+                    ", methodIsNative=" + methodIsNative +
+                    '}';
         }
     }
 

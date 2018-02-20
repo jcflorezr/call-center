@@ -48,9 +48,7 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
     @Override
     public void notifyAvailability() {
         synchronized (lock) {
-            Option.of(employeesAvailable.getAndSet(true))
-                    .filter(Boolean::booleanValue)
-                    .onEmpty(this::notifyListeners);
+            notifyListeners();
         }
     }
 
@@ -58,7 +56,6 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
     public void notifyUnavailability(Call call) {
         synchronized (lock) {
             Option.of(employeesAvailable.getAndSet(false))
-                    .filter(Boolean::booleanValue)
                     .peek(wasAvailable -> listeners
                             .forEach(listener -> ((AvailabilityListener) listener).update(call)));
         }

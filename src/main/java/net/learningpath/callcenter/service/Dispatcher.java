@@ -1,9 +1,10 @@
 package net.learningpath.callcenter.service;
 
 import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.Response;
 
 public interface Dispatcher {
 
-    void dispatchCall(Call call);
+    Response dispatchCall(Call call);
 
 }

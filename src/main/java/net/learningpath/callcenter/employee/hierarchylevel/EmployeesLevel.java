@@ -9,12 +9,15 @@ import net.learningpath.callcenter.exceptions.HierarchyLevelException;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public abstract class EmployeesLevel <EMPLOYEE extends Employee, LEVEL extends EmployeesLevel> {
 
+    private final ExecutorService executorService;
     private Option<EmployeesLevel> nextHierarchyLevel;
     private BlockingQueue<EMPLOYEE> employees;
     private BiPredicate<EmployeesLevel, Class<LEVEL>> levelsAreNotSame =
@@ -22,6 +25,7 @@ public abstract class EmployeesLevel <EMPLOYEE extends Employee, LEVEL extends E
 
     protected EmployeesLevel(EmployeesLevel nextHierarchyLevel, int numOfAvailableEmployees,
                              Class<LEVEL> currentHierarchyLevelType, Class<EMPLOYEE> employeesType) {
+        this.executorService = Executors.newFixedThreadPool(10);
         this.nextHierarchyLevel = nextHierarchyLevel == null ? Option.none()
                                                              : checkNextHierarchyLevel(nextHierarchyLevel, currentHierarchyLevelType);
         this.employees = initializeHierarchyLevel(numOfAvailableEmployees, employeesType);
@@ -40,16 +44,16 @@ public abstract class EmployeesLevel <EMPLOYEE extends Employee, LEVEL extends E
     }
 
     public void answerCall(Call call, EmployeesAvailabilityTopic employeesAvailability) {
-        Option.of(employees)
-                .filter(queue -> !queue.isEmpty())
+        Option.of(employees.poll())
+                .peek(employee ->
+                        Try.of(() -> employee)
+                        .andThenTry(emp -> emp.receiveCall(call)).onFailure(HierarchyLevelException::failedWhileAttendingCall)
+                        .andThenTry(emp -> employees.put(emp)).onFailure(HierarchyLevelException::failedWhenRelocatingEmployee)
+                        .andThen(() -> executorService.execute(employeesAvailability::notifyAvailability)))
                 .onEmpty(() -> nextHierarchyLevel
-                                .onEmpty(() -> employeesAvailability.notifyUnavailability(call))
-                                .peek(nextLevel -> nextLevel.answerCall(call, employeesAvailability)))
-                .toTry()
-                .mapTry(BlockingQueue::take).onFailure(HierarchyLevelException::failedWhenRetrievingEmployee)
-                .andThenTry(emp -> emp.receiveCall(call)).onFailure(HierarchyLevelException::failedWhileAttendingCall)
-                .andThenTry(emp -> employees.put(emp)).onFailure(HierarchyLevelException::failedWhenRelocatingEmployee)
-                .andThen(employeesAvailability::notifyAvailability);
+                                .onEmpty(() -> executorService.execute(() -> employeesAvailability.notifyUnavailability(call)))
+                                .peek(nextLevel -> nextLevel.answerCall(call, employeesAvailability)));
+
     }
 
 }
