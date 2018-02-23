@@ -1,5 +1,7 @@
 package net.learningpath.callcenter.exceptions;
 
+import net.learningpath.callcenter.employee.Employee;
+
 public class HierarchyLevelException extends InternalServerException {
 
     private HierarchyLevelException(String message) {
@@ -18,17 +20,15 @@ public class HierarchyLevelException extends InternalServerException {
         return new HierarchyLevelException("Could not initialize the new employee for hierarchy level.", cause);
     }
 
-    public static void failedWhenRetrievingEmployee (Throwable cause) {
-        throw new HierarchyLevelException("Could not take an employee to answer the call.", cause);
-    }
-
-    public static void failedWhenRelocatingEmployee(Throwable cause) {
-        throw new HierarchyLevelException("Call was processed successfully but the employee could not get back " +
-                "to the availability queue.", cause);
+    public static void failedWhenPuttingCallOnHold(Throwable cause) {
+        throw new HierarchyLevelException("Could not put the call on hold because of the employees unavailability.", cause);
     }
 
     public static void failedWhileAttendingCall(Throwable cause) {
         throw new HierarchyLevelException("Call was lost during the process.", cause);
     }
 
+    public static HierarchyLevelException employeeWasNotEnqueued(Employee employee) {
+        return new HierarchyLevelException(employee.getClass().getSimpleName() + " was not enqueued, it will not be available anymore.");
+    }
 }

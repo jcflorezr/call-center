@@ -1,96 +1,123 @@
 package net.learningpath.callcenter.service;
 
+import io.vavr.control.Option;
 import net.learningpath.callcenter.dto.request.Call;
-import net.learningpath.callcenter.employee.hierarchylevel.DirectorsLevel;
+import net.learningpath.callcenter.dto.response.Response;
+import net.learningpath.callcenter.employee.Operator;
+import net.learningpath.callcenter.employee.Supervisor;
 import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;
-import net.learningpath.callcenter.employee.hierarchylevel.OperatorsLevel;
-import net.learningpath.callcenter.employee.hierarchylevel.SupervisorsLevel;
-import net.learningpath.callcenter.event.topic.EmployeesAvailability;
-import net.learningpath.callcenter.event.topic.EmployeesAvailabilityTopic;
+import net.learningpath.callcenter.event.EmployeesAvailabilityTopic;
+import net.learningpath.callcenter.exceptions.HierarchyLevelException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({EmployeesLevel.class, DirectorsLevel.class, SupervisorsLevel.class, OperatorsLevel.class})
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+
+
+@RunWith(MockitoJUnitRunner.class)
 public class DispatcherImplTest {
 
-    private static final String DIRECTORS_LEVEL_FIELD_NAME = "directorsLevel";
-    private static final String SUPERVISORS_LEVEL_FIELD_NAME = "supervisorsLevel";
-    private static final String OPERATORS_LEVEL_FIELD_NAME = "operatorsLevel";
-    private static final String EMPLOYEES_AVAILABILITY_FIELD_NAME = "employeesAvailability";
-    private static final String CALLS_QUEUE_FIELD_NAME = "calls";
+    private Call call;
+    @Mock
+    private ExecutorService executorService;
+    @Mock
+    private EmployeesAvailabilityTopic employeesAvailability;
+    @Mock
+    private EmployeesLevel employeesLevel;
 
-    @Test
-    public void operatorShouldAttendCall() throws InterruptedException {
-        DispatcherImpl dispatcherMock = mock(DispatcherImpl.class);
+    private DispatcherImpl dispatcher;
 
-        EmployeesLevel directorsLevelMock = mock(DirectorsLevel.class);
-        EmployeesLevel supervisorsLevelMock = mock(SupervisorsLevel.class);
-        EmployeesLevel operatorsLevelMock = mock(OperatorsLevel.class);
-        EmployeesAvailabilityTopic availabilityTopic = mock(EmployeesAvailability.class);
-        Call callMock = mock(Call.class);
-        BlockingQueue<Call> calls = mock(BlockingQueue.class);
-
-        Whitebox.setInternalState(dispatcherMock, DIRECTORS_LEVEL_FIELD_NAME, directorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, SUPERVISORS_LEVEL_FIELD_NAME, supervisorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, OPERATORS_LEVEL_FIELD_NAME, operatorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, EMPLOYEES_AVAILABILITY_FIELD_NAME, availabilityTopic);
-        Whitebox.setInternalState(dispatcherMock, CALLS_QUEUE_FIELD_NAME, calls);
-
-        PowerMockito.doCallRealMethod().when(dispatcherMock).dispatchCall(callMock);
-
-        dispatcherMock.dispatchCall(callMock);
+    @Before
+    public void setUp() {
+        call = new Call("mock client");
+        dispatcher = new DispatcherImpl(call, employeesAvailability, employeesLevel);
     }
 
     @Test
-    public void callsQueue_ShouldBeUpdated_WhenNoEmployeesAvailable() throws InterruptedException {
-        DispatcherImpl dispatcherMock = mock(DispatcherImpl.class);
+    public void employeeShouldAttendCall() {
+        Operator operator = new Operator();
 
-        EmployeesLevel directorsLevelMock = mock(DirectorsLevel.class);
-        EmployeesLevel supervisorsLevelMock = mock(SupervisorsLevel.class);
-        EmployeesLevel operatorsLevelMock = mock(OperatorsLevel.class);
-        EmployeesAvailabilityTopic availabilityTopic = mock(EmployeesAvailability.class);
-        Call callMock = mock(Call.class);
-        BlockingQueue<Call> calls = mock(BlockingQueue.class);
+        when(employeesLevel.getAvailableEmployee()).thenReturn(Option.of(operator));
+        doNothing().when(employeesLevel).returnEmployeeToQueue(operator);
+        doNothing().when(executorService).execute(any());
 
-        Whitebox.setInternalState(dispatcherMock, DIRECTORS_LEVEL_FIELD_NAME, directorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, SUPERVISORS_LEVEL_FIELD_NAME, supervisorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, OPERATORS_LEVEL_FIELD_NAME, operatorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, EMPLOYEES_AVAILABILITY_FIELD_NAME, availabilityTopic);
-        Whitebox.setInternalState(dispatcherMock, CALLS_QUEUE_FIELD_NAME, calls);
+        Response response = dispatcher.dispatchCall();
 
-        PowerMockito.doCallRealMethod().when(dispatcherMock).update(callMock);
-
-        dispatcherMock.update(callMock);
+        assertTrue(response.isSuccess());
+        assertNotNull(response.getCall());
+        assertNotNull(response.getCall().getAttendedBy());
+        assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
+        assertNull(response.getErrorType());
+        assertNull(response.getDetails());
     }
 
     @Test
-    public void callsQueue_ShouldBeUpdated_WhenEmployeesAvailableAgain() throws InterruptedException {
-        DispatcherImpl dispatcherMock = mock(DispatcherImpl.class);
+    public void employeeShouldWait_BeforeAttendingCall() throws InterruptedException, ExecutionException {
+        Supervisor supervisor = new Supervisor();
 
-        EmployeesLevel directorsLevelMock = mock(DirectorsLevel.class);
-        EmployeesLevel supervisorsLevelMock = mock(SupervisorsLevel.class);
-        EmployeesLevel operatorsLevelMock = mock(OperatorsLevel.class);
-        EmployeesAvailabilityTopic availabilityTopic = mock(EmployeesAvailability.class);
-        BlockingQueue<Call> calls = mock(BlockingQueue.class);
+        when(employeesLevel.getAvailableEmployee()).thenReturn(Option.none()).thenReturn(Option.of(supervisor));
+        doNothing().when(employeesAvailability).notifyUnavailability(anyObject());
+        doNothing().when(employeesLevel).returnEmployeeToQueue(supervisor);
+        doNothing().when(executorService).execute(any());
 
-        Whitebox.setInternalState(dispatcherMock, DIRECTORS_LEVEL_FIELD_NAME, directorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, SUPERVISORS_LEVEL_FIELD_NAME, supervisorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, OPERATORS_LEVEL_FIELD_NAME, operatorsLevelMock);
-        Whitebox.setInternalState(dispatcherMock, EMPLOYEES_AVAILABILITY_FIELD_NAME, availabilityTopic);
-        Whitebox.setInternalState(dispatcherMock, CALLS_QUEUE_FIELD_NAME, calls);
+        ExecutorService realExecutorService = Executors.newSingleThreadExecutor();
+        Future<Response> responseFuture = realExecutorService.submit(dispatcher::dispatchCall);
+        Thread.sleep(2000L);
 
-        PowerMockito.doCallRealMethod().when(dispatcherMock).update();
+        synchronized (dispatcher) {
+            Option.of(responseFuture)
+                    .filter(future -> !future.isDone())
+                    .peek(future -> dispatcher.notifyAll());
+        }
 
-        dispatcherMock.update();
+        Response response = responseFuture.get();
+
+        assertTrue(response.isSuccess());
+        assertNotNull(response.getCall());
+        assertNotNull(response.getCall().getAttendedBy());
+        assertThat(response.getCall().getAttendedBy(), is(equalTo(supervisor)));
+        assertNull(response.getErrorType());
+        assertNull(response.getDetails());
+    }
+
+    @Test
+    public void errorWhenPuttingBackTheEmployee_AfterAttendingTheCall() {
+        Operator operator = new Operator();
+        String expectedErrorMessage = operator.getClass().getSimpleName() + " was not enqueued, it will not be available anymore.";
+
+        when(employeesLevel.getAvailableEmployee()).thenReturn(Option.of(operator));
+        doThrow(HierarchyLevelException.employeeWasNotEnqueued(operator)).when(employeesLevel).returnEmployeeToQueue(operator);
+        doNothing().when(executorService).execute(any());
+
+        Response response = dispatcher.dispatchCall();
+
+        assertFalse(response.isSuccess());
+        assertNotNull(response.getCall());
+        assertNotNull(response.getCall().getAttendedBy());
+        assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
+        assertThat(response.getErrorType(), is(HierarchyLevelException.class.getName()));
+        assertNotNull(response.getDetails());
+        assertThat(response.getMessage(), is(equalTo(expectedErrorMessage)));
     }
 
 }
