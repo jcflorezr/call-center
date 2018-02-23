@@ -1,6 +1,6 @@
 # Call Center
 
-* Dummy Object Oriented Programming project for simulating a call center module, where there is a chain of responsibility composed by 
+Dummy Object Oriented Programming project for simulating a call center module, where there is a chain of responsibility composed by 
 hierarchy levels of employees that will answer the "incoming calls". 
 #### Release 0.1
 ##### How to execute it: Through the test cases specified in the unit test classes inside the [call-center test package](https://github.com/jcflorezr/call-center/tree/release-0.1/src/test/java/net/learningpath/callcenter).
