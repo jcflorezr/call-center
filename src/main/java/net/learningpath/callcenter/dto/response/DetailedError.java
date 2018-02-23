@@ -1,20 +1,24 @@
 package net.learningpath.callcenter.dto.response;
 
+import io.vavr.control.Option;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DetailedError {
 
+    private static final String EMPTY = "";
     private String errorCauseType;
     private String errorCauseMessage;
     private List<TraceElement> stackTrace;
 
     public DetailedError(Throwable cause) {
-        Throwable realCause = cause.getCause();
-        this.errorCauseType = realCause.getClass().getName();
-        this.errorCauseMessage = realCause.getLocalizedMessage();
-        this.stackTrace = getTrace(realCause);
+        Option<Throwable> realCauseOpt = Option.of(cause.getCause()).orElse(Option.of(cause));
+        this.errorCauseType = realCauseOpt.map(realCause -> realCause.getClass().getName()).getOrElse(EMPTY);
+        this.errorCauseMessage = realCauseOpt.map(realCause -> realCause.getLocalizedMessage()).getOrElse(EMPTY);
+        this.stackTrace = realCauseOpt.map(this::getTrace).getOrElse(new ArrayList<>());
     }
 
     private List<TraceElement> getTrace(Throwable cause) {
