@@ -12,6 +12,9 @@ hierarchy levels of employees that will answer the "incoming calls".
 the current dispatcher which is in charge of assigning the current call to an employee will be enqueued and put on hold.
 * Once an employee is available again, ~~the dispatcher will be notified and it will proceed to dispatch a previously enqueued call~~
 a dispatcher, which is holding the pending call, will be dequeued and notified immediately so that it can proceed to reach the available employee and assign it to the pending call.
+#### Release 1.1
+##### How to execute it: Same as release 1.0
+* Minor release. Only adding spring support for delegating the configuration of the chain of responsibility to a Spring container in order to separate the configuration from the implementation
 
 
 ## RELEASE 0.1
@@ -60,6 +63,25 @@ for both availability and unavailability of employees to attend the calls.~~ The
 #### Programming languages
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * [Vavr (Javaslang)](http://www.vavr.io/) - Library for implementing real functional programming in java
+#### Unit testing
+* [JUnit 5](https://junit.org/junit5/)
+* [Hamcrest](hamcrest.org)
+* [Mockito](http://site.mockito.org/)
+* [PowerMock](http://powermock.github.io/)
+#### Dependency management
+* [Maven](https://maven.apache.org/)
+
+
+## RELEASE 1.1
+
+### Description
+Minor release. Only adding spring support for delegating the configuration of the chain of responsibility to a Spring container in order to separate the configuration from the implementation
+
+### Built with
+#### Programming languages
+* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Vavr (Javaslang)](http://www.vavr.io/) - Library for implementing real functional programming in java
+* [Spring Core](https://spring.io/)
 #### Unit testing
 * [JUnit 5](https://junit.org/junit5/)
 * [Hamcrest](hamcrest.org)

@@ -18,19 +18,17 @@ import java.util.concurrent.Executors;
 public class DispatcherImpl implements Dispatcher {
 
     private ExecutorService executorService;
-    private Call call;
     private EmployeesAvailabilityTopic employeesAvailability;
     private EmployeesLevel employeesLevel;
 
-    public DispatcherImpl(Call call, EmployeesAvailabilityTopic employeesAvailability, EmployeesLevel employeesLevel) {
-        this.executorService = Executors.newFixedThreadPool(10);
-        this.call = call;
+    public DispatcherImpl(EmployeesAvailabilityTopic employeesAvailability, EmployeesLevel employeesLevel) {
+        this.executorService = Executors.newSingleThreadExecutor();
         this.employeesAvailability = employeesAvailability;
         this.employeesLevel = employeesLevel;
     }
 
     @Override
-    public synchronized Response dispatchCall() {
+    public synchronized Response dispatchCall(Call call) {
         Try<Employee> dispatch =
             employeesLevel.getAvailableEmployee()
                 .orElse(

@@ -2,26 +2,31 @@ package net.learningpath.callcenter.event;
 
 import io.vavr.control.Option;
 import net.learningpath.callcenter.service.Dispatcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+@Service
 public class EmployeesAvailability implements EmployeesAvailabilityTopic {
 
     private BlockingQueue<Dispatcher> enqueuedDispatchers;
 
-    private EmployeesAvailability() {
-        enqueuedDispatchers = new LinkedBlockingQueue<>();
+    public EmployeesAvailability(BlockingQueue<Dispatcher> enqueuedDispatchers) {
+        this.enqueuedDispatchers = enqueuedDispatchers;
     }
 
-    private static class EmployeesAvailabilityHolder {
-        private EmployeesAvailabilityHolder() {}
-        private static final EmployeesAvailability INSTANCE = new EmployeesAvailability();
-    }
-
-    public static EmployeesAvailability getInstance() {
-        return EmployeesAvailabilityHolder.INSTANCE;
-    }
+//    private static class EmployeesAvailabilityHolder {
+//        private EmployeesAvailabilityHolder() {}
+//        private static final EmployeesAvailability INSTANCE = new EmployeesAvailability();
+//    }
+//
+//    public static EmployeesAvailability getInstance() {
+//        return EmployeesAvailabilityHolder.INSTANCE;
+//    }
 
     @Override
     public void notifyAvailability() {
@@ -34,7 +39,6 @@ public class EmployeesAvailability implements EmployeesAvailabilityTopic {
                         dispatcher.notifyAll();
                     }
                 });
-
     }
 
     @Override
