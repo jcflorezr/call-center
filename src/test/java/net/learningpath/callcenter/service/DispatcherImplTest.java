@@ -50,7 +50,7 @@ public class DispatcherImplTest {
     @Before
     public void setUp() {
         call = new Call("mock client");
-        dispatcher = new DispatcherImpl(call, employeesAvailability, employeesLevel);
+        dispatcher = new DispatcherImpl(employeesAvailability, employeesLevel);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class DispatcherImplTest {
         doNothing().when(employeesLevel).returnEmployeeToQueue(operator);
         doNothing().when(executorService).execute(any());
 
-        Response response = dispatcher.dispatchCall();
+        Response response = dispatcher.dispatchCall(call);
 
         assertTrue(response.isSuccess());
         assertNotNull(response.getCall());
@@ -81,7 +81,7 @@ public class DispatcherImplTest {
         doNothing().when(executorService).execute(any());
 
         ExecutorService realExecutorService = Executors.newSingleThreadExecutor();
-        Future<Response> responseFuture = realExecutorService.submit(dispatcher::dispatchCall);
+        Future<Response> responseFuture = realExecutorService.submit(() -> dispatcher.dispatchCall(call));
         Thread.sleep(2000L);
 
         synchronized (dispatcher) {
@@ -109,7 +109,7 @@ public class DispatcherImplTest {
         doThrow(HierarchyLevelException.employeeWasNotEnqueued(operator)).when(employeesLevel).returnEmployeeToQueue(operator);
         doNothing().when(executorService).execute(any());
 
-        Response response = dispatcher.dispatchCall();
+        Response response = dispatcher.dispatchCall(call);
 
         assertFalse(response.isSuccess());
         assertNotNull(response.getCall());

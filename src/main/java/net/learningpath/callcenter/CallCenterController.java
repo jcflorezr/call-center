@@ -1,9 +1,10 @@
-package net.learningpath.callcenter.service;
+package net.learningpath.callcenter;
 
 import net.learningpath.callcenter.dto.request.Call;
 import net.learningpath.callcenter.dto.response.Response;
 
-public interface Dispatcher {
+public interface CallCenterController {
 
-    Response dispatchCall(Call call);
+    Response getRequest(Call call);
+
 }
