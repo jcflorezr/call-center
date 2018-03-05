@@ -1,10 +1,12 @@
 package net.learningpath.callcenter;
 
 import io.vavr.control.Try;
+import net.learningpath.callcenter.config.CallCenterControllerConfig;
 import net.learningpath.callcenter.dto.request.Call;
 import net.learningpath.callcenter.dto.response.Response;
 import net.learningpath.callcenter.employee.Employee;
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -17,14 +19,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ControllerTest {
+public class CallCenterControllerImplTest {
 
     @Test
     public void getRequest() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(100);
 
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(CallCenterControllerConfig.class);
+        CallCenterController controller = context.getBean("controllerWithStandardEmployeesHierarchy", CallCenterController.class);
         List<Callable<Response>> callables = IntStream.range(1, 1001)
-                .mapToObj(i -> Executors.privilegedCallable(() -> Controller.getInstance().getRequest(new Call("Client" + i))))
+                .mapToObj(i -> Executors.privilegedCallable(() -> controller.getRequest(new Call("Client" + i))))
                 .collect(Collectors.toList());
 
         List<Response> responses =
@@ -42,6 +46,8 @@ public class ControllerTest {
             assertNull(response.getErrorType());
             assertNull(response.getDetails());
         });
+
+        context.close();
     }
 
 }
