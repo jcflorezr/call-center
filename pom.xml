@@ -4,7 +4,7 @@
 
     <groupId>net.learningpath.callcenter</groupId>
     <artifactId>call-center</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>call-center</name>
