@@ -50,7 +50,7 @@ public class DispatcherImplTest {
     @Before
     public void setUp() {
         call = new Call("mock client");
-        dispatcher = new DispatcherImpl(employeesAvailability, employeesLevel);
+        dispatcher = new DispatcherImpl(employeesLevel, employeesAvailability);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class DispatcherImplTest {
 
         assertFalse(response.isSuccess());
         assertNotNull(response.getCall());
-        assertNotNull(response.getCall().getAttendedBy());
-        assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
+        assertNull(response.getCall().getAttendedBy());
+        //assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
         assertThat(response.getErrorType(), is(HierarchyLevelException.class.getName()));
         assertNotNull(response.getDetails());
         assertThat(response.getMessage(), is(equalTo(expectedErrorMessage)));
