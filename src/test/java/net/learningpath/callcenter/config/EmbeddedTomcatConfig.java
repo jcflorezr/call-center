@@ -23,20 +23,14 @@ public class EmbeddedTomcatConfig {
     @Value("${tomcat-server-port}")
     private int serverPort;
 
-    @Value("${tomcat-server-timeout}")
-    private int timeout;
-
     @Value("${tomcat-base-dir}")
     private String tomcatBaseDir;
 
-    @Value("${project-folder}")
-    private String projectFolder;
+    @Value("${project-folder-path}")
+    private String projectFolderPath;
 
-    @Value("${project-base-folder}")
-    private String projectBaseFolder;
-
-    @Value("${temp-webapp-location-folder}")
-    private String webAppLocationFolder;
+    @Value("${temp-webapp-context}")
+    private String webAppContext;
 
     @Bean
     public Tomcat getTomcatInstance() throws ServletException {
@@ -46,12 +40,10 @@ public class EmbeddedTomcatConfig {
         tomcat.setBaseDir(tomcatBaseDirOpt.getOrElseThrow(() -> new RuntimeException("FAILED WHEN CREATING TOMCAT BASE DIRECTORY")));
         tomcat.setPort(serverPort);
 
-        File webAppLocation = new File(webAppLocationFolder);
-        Option<String> webAppDirOpt = createDirectory.apply(webAppLocation);
-        String webAppDir = webAppDirOpt.getOrElseThrow(() -> new RuntimeException("FAILED WHEN CREATING THE WEBAPP BASE DIRECTORY"));
+        String webAppLocation = new File(projectFolderPath).toPath().normalize().toFile().getAbsolutePath();
 
         // create the web app context
-        tomcat.addWebapp(projectBaseFolder, webAppDir);
+        tomcat.addWebapp(webAppContext, webAppLocation);
         return tomcat;
     }
 

@@ -33,7 +33,6 @@ public class CallCenterControllerImpl implements CallCenterController {
     @PostMapping(value = "/call", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Response> getRequest(@RequestBody Call call) {
-        System.out.println("entra");
         Response response = dispatcher.dispatchCall(call);
         return Match(response).of(
                 Case($(instanceOf(SuccessResponse.class)), ResponseEntity.status(HttpStatus.OK).body(response)),

@@ -93,7 +93,7 @@
             </exclusions>
         </dependency>
 
-        <!-- EMBED TOMCAT SERVER -->
+        <!-- EMBEDDED TOMCAT SERVER -->
 
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -130,7 +130,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>src/test/resources</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
