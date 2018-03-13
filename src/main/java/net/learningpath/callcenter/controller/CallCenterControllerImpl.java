@@ -24,6 +24,7 @@ import static io.vavr.Predicates.instanceOf;
 @RequestMapping("/call-center")
 public class CallCenterControllerImpl implements CallCenterController {
 
+    // TODO: verify if these two fields should be declared in this class or only should be declared in the Dispatcher
     private final EmployeesLevel employeesLevel;
     private final EmployeesAvailabilityTopic employeesAvailability;
     private Dispatcher dispatcher;
