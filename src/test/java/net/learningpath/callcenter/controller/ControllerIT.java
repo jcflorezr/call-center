@@ -1,7 +1,6 @@
 package net.learningpath.callcenter.controller;
 
 import net.learningpath.callcenter.config.EmbeddedTomcatConfig;
-import net.learningpath.callcenter.config.web.WebContext;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Test;
@@ -14,7 +13,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @PropertySource("classpath:embedded-tomcat.properties")
-@ContextConfiguration(classes = {EmbeddedTomcatConfig.class, WebContext.class})
+@ContextConfiguration(classes = {EmbeddedTomcatConfig.class})
 @WebAppConfiguration
 public class ControllerIT {
 
