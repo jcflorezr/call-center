@@ -2,12 +2,16 @@ package net.learningpath.callcenter.config;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.nio.file.Files;
@@ -19,6 +23,8 @@ import java.util.function.Function;
 @Configuration
 @PropertySource("classpath:embedded-tomcat.properties")
 public class EmbeddedTomcatConfig {
+
+    private Tomcat tomcat;
 
     @Value("${tomcat-server-port}")
     private int serverPort;
@@ -32,9 +38,12 @@ public class EmbeddedTomcatConfig {
     @Value("${temp-webapp-context}")
     private String webAppContext;
 
-    @Bean
-    public Tomcat getTomcatInstance() throws ServletException {
-        Tomcat tomcat = new Tomcat();
+    public EmbeddedTomcatConfig() {
+        tomcat = new Tomcat();
+    }
+
+    @PostConstruct
+    public void startEmbeddedInstance() throws LifecycleException, ServletException {
         File tempTomcatBaseDir = new File(tomcatBaseDir);
         Option<String> tomcatBaseDirOpt = createDirectory.apply(tempTomcatBaseDir);
         tomcat.setBaseDir(tomcatBaseDirOpt.getOrElseThrow(() -> new RuntimeException("FAILED WHEN CREATING TOMCAT BASE DIRECTORY")));
@@ -44,7 +53,12 @@ public class EmbeddedTomcatConfig {
 
         // create the web app context
         tomcat.addWebapp(webAppContext, webAppLocation);
-        return tomcat;
+        tomcat.start();
+    }
+
+    @PreDestroy
+    public void stopEmbeddedInstance() throws LifecycleException {
+        tomcat.destroy();
     }
 
     private Function<File, Option<String>> createDirectory = dirPath ->

@@ -22,6 +22,7 @@
         <spring.version>4.3.0.RELEASE</spring.version>
         <powermock.version>1.6.3</powermock.version>
         <tomcat.version>8.5.2</tomcat.version>
+        <rest-assured.version>3.0.7</rest-assured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -91,6 +92,15 @@
                     <artifactId>hamcrest-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- INTEGRATION TESTS -->
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- EMBEDDED TOMCAT SERVER -->

@@ -10,6 +10,8 @@ public class SuccessResponse implements Response {
     private boolean success;
     private String message;
 
+    public SuccessResponse() {}
+
     public static Response newResponse(Call call) {
         return new SuccessResponse(call);
     }
