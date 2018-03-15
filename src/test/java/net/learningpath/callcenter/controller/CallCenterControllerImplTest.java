@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.learningpath.callcenter.config.TestRootContext;
 import net.learningpath.callcenter.config.web.WebContext;
 import net.learningpath.callcenter.dto.request.Call;
-import net.learningpath.callcenter.dto.response.*;
+import net.learningpath.callcenter.dto.response.Response;
 import net.learningpath.callcenter.dto.response.failed.servererror.InternalServerErrorResponse;
 import net.learningpath.callcenter.dto.response.success.SuccessResponse;
 import net.learningpath.callcenter.employee.Operator;
