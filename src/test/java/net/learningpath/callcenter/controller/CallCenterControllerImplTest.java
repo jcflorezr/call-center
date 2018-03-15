@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -45,6 +47,9 @@ public class CallCenterControllerImplTest {
 
     private MockMvc mockMvc;
 
+    @Value("${endpoint-url}")
+    private String endpointUrl;
+
     @Autowired
     private Dispatcher dispatcherMock;
 
@@ -66,7 +71,7 @@ public class CallCenterControllerImplTest {
         when(dispatcherMock.dispatchCall(anyObject())).thenReturn(expectedResponse);
 
         // {"call":{"clientName":"mock client","attendedBy":{"greeting":"Hi!, how can I help you?"}},"success":true,"message":"Call was attended successfully !!!"}
-        mockMvc.perform(post("/call-center/call")
+        mockMvc.perform(post(endpointUrl)
                         .contentType(APPLICATION_JSON_UTF8)
                         .content(callString))
                 .andExpect(status().isOk())
@@ -110,7 +115,7 @@ public class CallCenterControllerImplTest {
             }
         }*/
 
-        mockMvc.perform(post("/call-center/call")
+        mockMvc.perform(post(endpointUrl)
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(callString))
                 .andExpect(status().isInternalServerError())

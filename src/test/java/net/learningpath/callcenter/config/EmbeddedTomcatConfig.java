@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -21,7 +22,9 @@ import java.util.Comparator;
 import java.util.function.Function;
 
 @Configuration
-@PropertySource("classpath:embedded-tomcat.properties")
+@PropertySources({
+        @PropertySource("classpath:embedded-tomcat.properties"),
+        @PropertySource("classpath:test-call-center-calls-endpoint.properties")})
 public class EmbeddedTomcatConfig {
 
     private Tomcat tomcat;

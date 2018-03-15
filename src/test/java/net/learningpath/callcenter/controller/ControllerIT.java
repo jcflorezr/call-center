@@ -9,7 +9,6 @@ import net.learningpath.callcenter.employee.Employee;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@PropertySource("classpath:embedded-tomcat.properties")
 @ContextConfiguration(classes = {EmbeddedTomcatConfig.class})
 @WebAppConfiguration
 public class ControllerIT {
@@ -36,11 +34,12 @@ public class ControllerIT {
     @Value("${tomcat-server-port:#{null}}")
     private Optional<Integer> serverPort;
 
-    public ControllerIT() {
-    }
+    @Value("${endpoint-url}")
+    private String endpointUrl;
 
+    // happy path
     @Test
-    public void firstTest() throws InterruptedException {
+    public void callIsAttendedSuccessfully() {
         RestAssured.baseURI = currentHost.orElse(RestAssured.DEFAULT_URI);
         RestAssured.port = serverPort.orElse(RestAssured.DEFAULT_PORT);
         String clientName = "any client";
@@ -50,7 +49,7 @@ public class ControllerIT {
                     .contentType(ContentType.JSON)
                     .body(call)
                     .when()
-                    .post("/call-center/call")
+                    .post(endpointUrl)
                     .then()
                     .assertThat()
                     .statusCode(HttpStatus.OK.value())
