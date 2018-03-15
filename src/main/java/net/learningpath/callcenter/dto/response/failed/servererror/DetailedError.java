@@ -1,4 +1,4 @@
-package net.learningpath.callcenter.dto.response;
+package net.learningpath.callcenter.dto.response.failed.servererror;
 
 import io.vavr.control.Option;
 

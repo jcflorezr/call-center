@@ -1,10 +1,12 @@
-package net.learningpath.callcenter.dto.response;
+package net.learningpath.callcenter.dto.response.failed.servererror;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.Response;
+import net.learningpath.callcenter.dto.response.failed.ErrorResponse;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorResponse implements Response {
+public class InternalServerErrorResponse implements ErrorResponse {
 
     private Call call;
     private boolean success;
@@ -13,10 +15,10 @@ public class ErrorResponse implements Response {
     private DetailedError details;
 
     public static Response newResponse(Call call, Throwable cause) {
-        return new ErrorResponse(call, cause);
+        return new InternalServerErrorResponse(call, cause);
     }
 
-    private ErrorResponse(Call call, Throwable cause) {
+    private InternalServerErrorResponse(Call call, Throwable cause) {
         this.call = call;
         this.success = false;
         this.errorType = cause.getClass().getName();

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.failed.ErrorResponse;
+import net.learningpath.callcenter.dto.response.failed.servererror.DetailedError;
+import net.learningpath.callcenter.dto.response.success.SuccessResponse;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)

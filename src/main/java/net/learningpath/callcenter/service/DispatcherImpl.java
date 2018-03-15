@@ -1,13 +1,11 @@
 package net.learningpath.callcenter.service;
 
 import io.vavr.CheckedRunnable;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
 import net.learningpath.callcenter.dto.request.Call;
-import net.learningpath.callcenter.dto.response.ErrorResponse;
+import net.learningpath.callcenter.dto.response.failed.servererror.InternalServerErrorResponse;
 import net.learningpath.callcenter.dto.response.Response;
-import net.learningpath.callcenter.dto.response.SuccessResponse;
-import net.learningpath.callcenter.employee.Employee;
+import net.learningpath.callcenter.dto.response.success.SuccessResponse;
 import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;
 import net.learningpath.callcenter.event.EmployeesAvailabilityTopic;
 import net.learningpath.callcenter.exceptions.HierarchyLevelException;
@@ -56,7 +54,7 @@ public class DispatcherImpl implements Dispatcher {
 
         return Match(dispatchedCall).of(
                     Case($(Try::isSuccess), () -> SuccessResponse.newResponse(dispatchedCall.get())),
-                    Case($(Try::isFailure), () -> dispatchedCall.failed().map(exception -> ErrorResponse.newResponse(call, exception)).get())
+                    Case($(Try::isFailure), () -> dispatchedCall.failed().map(exception -> InternalServerErrorResponse.newResponse(call, exception)).get())
                );
     }
 

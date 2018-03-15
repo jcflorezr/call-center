@@ -1,7 +1,8 @@
-package net.learningpath.callcenter.dto.response;
+package net.learningpath.callcenter.dto.response.success;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import net.learningpath.callcenter.dto.request.Call;
+import net.learningpath.callcenter.dto.response.Response;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SuccessResponse implements Response {

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.learningpath.callcenter.config.TestRootContext;
 import net.learningpath.callcenter.config.web.WebContext;
 import net.learningpath.callcenter.dto.request.Call;
-import net.learningpath.callcenter.dto.response.ErrorResponse;
-import net.learningpath.callcenter.dto.response.Response;
-import net.learningpath.callcenter.dto.response.SuccessResponse;
+import net.learningpath.callcenter.dto.response.*;
+import net.learningpath.callcenter.dto.response.failed.servererror.InternalServerErrorResponse;
+import net.learningpath.callcenter.dto.response.success.SuccessResponse;
 import net.learningpath.callcenter.employee.Operator;
 import net.learningpath.callcenter.service.Dispatcher;
 import org.junit.Before;
@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,14 +27,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestRootContext.class, WebContext.class})
@@ -83,37 +81,87 @@ public class CallCenterControllerImplTest {
     }
 
     @Test
+    public void callInfoIsEmpty() throws Exception {
+        String callString = "{}";
+
+        // {"success": false, "message": "Call info cannot be empty", "hints": ["Please add the call info with the following structure: {'clientName': 'client name'}"]}
+        mockMvc.perform(post(endpointUrl)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(callString))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.hints", hasSize(1)))
+                .andExpect(jsonPath("$.hints[0]", is("Please add the call info with the following structure: {'clientName': 'client name'}")))
+                .andExpect(jsonPath("$.message", is("Call info cannot be empty")));
+    }
+
+    @Test
+    public void clientNameIsNull() throws Exception {
+        Call call = new Call((String) null, new Operator());
+        String callString = MAPPER.writeValueAsString(call);
+
+        // {"success": false, "message": "Call info cannot be empty", "hints": ["Please add the call info with the following structure: {'clientName': 'client name'}"]}
+        mockMvc.perform(post(endpointUrl)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(callString))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.hints", hasSize(1)))
+                .andExpect(jsonPath("$.hints[0]", is("Please add the call info with the following structure: {'clientName': 'client name'}")))
+                .andExpect(jsonPath("$.message", is("Call info cannot be empty")));
+    }
+
+    @Test
+    public void clientNameIsEmpty() throws Exception {
+        Call call = new Call("", new Operator());
+        String callString = MAPPER.writeValueAsString(call);
+
+        // {"success": false, "message": "Call info cannot be empty", "hints": ["Please add the call info with the following structure: {'clientName': 'client name'}"]}
+        mockMvc.perform(post(endpointUrl)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(callString))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.hints", hasSize(1)))
+                .andExpect(jsonPath("$.hints[0]", is("Please add the call info with the following structure: {'clientName': 'client name'}")))
+                .andExpect(jsonPath("$.message", is("Call info cannot be empty")));
+    }
+
+    @Test
     public void failedResponseAfterAttendingTheCall() throws Exception {
         Call call = new Call("mock client", new Operator());
         String callString = MAPPER.writeValueAsString(call);
-        Response expectedResponse = ErrorResponse.newResponse(call, new Exception("mock exception"));
+        Response expectedResponse = InternalServerErrorResponse.newResponse(call, new Exception("mock exception"));
 
         when(dispatcherMock.dispatchCall(anyObject())).thenReturn(expectedResponse);
 
-        /*{
-            "call": {
-                "clientName": "mock client",
-                "attendedBy": {
-                    "greeting": "Hi!, how can I help you?"
-                }
-            },
-            "success": false,
-            "errorType": "java.lang.Exception",
-            "message": "mock exception",
-            "details":{
-                "errorCauseType":"java.lang.Exception",
-                "errorCauseMessage":"mock exception",
-                "stackTrace": [
-                    {
-                        "className":"net.learningpath.callcenter.controller.CallCenterControllerImplTest",
-                        "methodName":"failedResponseAfterAttendingTheCall",
-                        "lineNumber":113,
-                        "methodIsNative":false
-                    }
-                    ...
-                ]
-            }
-        }*/
+//        {
+//            "call": {
+//                "clientName": "mock client",
+//                "attendedBy": {
+//                    "greeting": "Hi!, how can I help you?"
+//                }
+//            },
+//            "success": false,
+//            "errorType": "java.lang.Exception",
+//            "message": "mock exception",
+//            "details":{
+//                "errorCauseType":"java.lang.Exception",
+//                "errorCauseMessage":"mock exception",
+//                "stackTrace": [
+//                    {
+//                        "className":"net.learningpath.callcenter.controller.CallCenterControllerImplTest",
+//                        "methodName":"failedResponseAfterAttendingTheCall",
+//                        "lineNumber":113,
+//                        "methodIsNative":false
+//                    }
+//                    ...
+//                ]
+//            }
+//        }
 
         mockMvc.perform(post(endpointUrl)
                 .contentType(APPLICATION_JSON_UTF8)
