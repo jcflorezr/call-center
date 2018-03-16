@@ -23,6 +23,7 @@
         <powermock.version>1.6.3</powermock.version>
         <tomcat.version>8.5.2</tomcat.version>
         <rest-assured.version>3.0.7</rest-assured.version>
+        <swagger.version>2.7.0</swagger.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -121,6 +122,19 @@
             <artifactId>tomcat-embed-logging-juli</artifactId>
             <version>${tomcat.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- API DOCUMENTATION -->
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.version}</version>
         </dependency>
 
     </dependencies>
