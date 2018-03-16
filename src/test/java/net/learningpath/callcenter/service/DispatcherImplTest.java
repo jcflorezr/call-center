@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -69,7 +68,7 @@ public class DispatcherImplTest {
     }
 
     @Test
-    public void employeeShouldWait_BeforeAttendingCall() throws InterruptedException, ExecutionException {
+    public void employeeShouldWait_BeforeAttendingCall() {
         Supervisor supervisor = new Supervisor();
 
         when(employeesLevel.getAvailableEmployee()).thenReturn(Option.none()).thenReturn(Option.of(supervisor));
