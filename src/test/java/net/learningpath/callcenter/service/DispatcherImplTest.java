@@ -114,7 +114,6 @@ public class DispatcherImplTest {
         assertFalse(response.isSuccess());
         assertNotNull(response.getCall());
         assertNull(response.getCall().getAttendedBy());
-        //assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
         assertThat(response.getErrorType(), is(HierarchyLevelException.class.getName()));
         assertNotNull(response.getDetails());
         assertThat(response.getMessage(), is(equalTo(expectedErrorMessage)));
