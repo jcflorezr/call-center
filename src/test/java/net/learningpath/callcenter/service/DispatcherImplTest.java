@@ -14,18 +14,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
@@ -50,7 +46,7 @@ public class DispatcherImplTest {
     @Before
     public void setUp() {
         call = new Call("mock client");
-        dispatcher = new DispatcherImpl(employeesAvailability, employeesLevel);
+        dispatcher = new DispatcherImpl(employeesLevel, employeesAvailability);
     }
 
     @Test
@@ -72,7 +68,7 @@ public class DispatcherImplTest {
     }
 
     @Test
-    public void employeeShouldWait_BeforeAttendingCall() throws InterruptedException, ExecutionException {
+    public void employeeShouldWait_BeforeAttendingCall() {
         Supervisor supervisor = new Supervisor();
 
         when(employeesLevel.getAvailableEmployee()).thenReturn(Option.none()).thenReturn(Option.of(supervisor));
@@ -80,24 +76,34 @@ public class DispatcherImplTest {
         doNothing().when(employeesLevel).returnEmployeeToQueue(supervisor);
         doNothing().when(executorService).execute(any());
 
-        ExecutorService realExecutorService = Executors.newSingleThreadExecutor();
-        Future<Response> responseFuture = realExecutorService.submit(() -> dispatcher.dispatchCall(call));
-        Thread.sleep(2000L);
-
-        synchronized (dispatcher) {
-            Option.of(responseFuture)
-                    .filter(future -> !future.isDone())
-                    .peek(future -> dispatcher.notifyAll());
+        class Inner {
+            private Response response;
+            Runnable runnable;
+            Inner() {
+                runnable = () -> response = dispatcher.dispatchCall(call);
+            }
         }
 
-        Response response = responseFuture.get();
+        Inner inner = new Inner();
+        Thread thread = new Thread(inner.runnable);
+        thread.start();
 
-        assertTrue(response.isSuccess());
-        assertNotNull(response.getCall());
-        assertNotNull(response.getCall().getAttendedBy());
-        assertThat(response.getCall().getAttendedBy(), is(equalTo(supervisor)));
-        assertNull(response.getErrorType());
-        assertNull(response.getDetails());
+        while(Thread.State.WAITING != thread.getState()) {
+        }
+
+        synchronized (dispatcher) {
+            dispatcher.notify();
+        }
+
+        while(Thread.State.TERMINATED != thread.getState()) {
+        }
+
+        assertTrue(inner.response.isSuccess());
+        assertNotNull(inner.response.getCall());
+        assertNotNull(inner.response.getCall().getAttendedBy());
+        assertThat(inner.response.getCall().getAttendedBy(), is(equalTo(supervisor)));
+        assertNull(inner.response.getErrorType());
+        assertNull(inner.response.getDetails());
     }
 
     @Test
@@ -113,8 +119,7 @@ public class DispatcherImplTest {
 
         assertFalse(response.isSuccess());
         assertNotNull(response.getCall());
-        assertNotNull(response.getCall().getAttendedBy());
-        assertThat(response.getCall().getAttendedBy(), is(equalTo(operator)));
+        assertNull(response.getCall().getAttendedBy());
         assertThat(response.getErrorType(), is(HierarchyLevelException.class.getName()));
         assertNotNull(response.getDetails());
         assertThat(response.getMessage(), is(equalTo(expectedErrorMessage)));

@@ -1,4 +1,4 @@
-package net.learningpath.callcenter.config;
+package net.learningpath.callcenter.config.root;
 
 import net.learningpath.callcenter.employee.hierarchylevel.DirectorsLevel;
 import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;

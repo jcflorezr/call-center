@@ -1,9 +1,9 @@
-package net.learningpath.callcenter.config;
+package net.learningpath.callcenter.config.root;
 
-import net.learningpath.callcenter.CallCenterController;
-import net.learningpath.callcenter.CallCenterControllerImpl;
 import net.learningpath.callcenter.employee.hierarchylevel.EmployeesLevel;
 import net.learningpath.callcenter.event.EmployeesAvailabilityTopic;
+import net.learningpath.callcenter.service.Dispatcher;
+import net.learningpath.callcenter.service.DispatcherImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +20,10 @@ public class CallCenterControllerConfig {
     private EmployeesAvailabilityConfig employeesAvailabilityConfig;
 
     @Bean
-    public CallCenterController controllerWithStandardEmployeesHierarchy() {
+    public Dispatcher dispatcher() {
         EmployeesAvailabilityTopic employeesAvailability = employeesAvailabilityConfig.employeesAvailability();
         EmployeesLevel standardEmployeesHierarchy = employeesHierarchyConfig.standardEmployeesHierarchy();
-        return new CallCenterControllerImpl(standardEmployeesHierarchy, employeesAvailability);
+        return new DispatcherImpl(standardEmployeesHierarchy, employeesAvailability);
     }
 
 }
